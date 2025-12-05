@@ -1,0 +1,29 @@
+name: Build & Push MinIO CE (GHCR)
+
+on:
+  schedule:
+    - cron: "0 0 * * 5"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout builder repo
+        uses: actions/checkout@v4
+
+      - name: Clone MinIO upstream
+        run: git clone https://github.com/minio/minio.git minio
+
+      - name: Build MinIO CE from source using custom Dockerfile
+        run: docker build -t minio-ce:latest .
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Tag and push to GHCR
+        run: |
+          IMAGE="ghcr.io/${{ secrets.GHCR_USERNAME }}/minio-ce:latest"
+          docker tag minio-ce:latest $IMAGE
+          docker push $IMAGE
