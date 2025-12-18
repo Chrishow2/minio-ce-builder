@@ -24,6 +24,11 @@ jobs:
 
       - name: Tag and push to GHCR
         run: |
-          IMAGE="ghcr.io/${{ secrets.GHCR_USERNAME }}/minio-ce:latest"
-          docker tag minio-ce:latest $IMAGE
-          docker push $IMAGE
+          IMAGE="ghcr.io/${{ secrets.GHCR_USERNAME }}/minio-ce"
+          DATE_TAG=$(date +'%Y-%V')
+          
+          docker tag minio-ce:latest $IMAGE:latest
+          docker push $IMAGE:latest
+
+          docker tag minio-ce:latest $IMAGE:$DATE_TAG
+          docker push $IMAGE:$DATE_TAG
